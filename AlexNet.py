@@ -1,25 +1,29 @@
-# -*-coding: utf-8 -*-
 # -*- coding: utf-8 -*-
 """
 Created on Mon Dec 10 19:18:42 2017
 
 @author: HM-PC
 
-数据:训练集为55000张图片；验证集为5000张图片；测试集为10000张图片；每张图片大小为28x28；
-每张图片精处理为784的一维数组（28x28）；像素矩阵的值为[0,1]之间，0表示白色背景，1表示黑色前景
+数据:ILSVRC-2010 
+
 """
+
 import tensorflow as tf
 
+INPUT_NODE = 784
+OUTPUT_NODE = 1000
+IMAGE_SIZE = 227
+NUM_CHANNELS = 3
 
-def alexnet(input_tensor, train, regularizer):
+def inference(input_tensor, train, regularizer):
     # conv1  
     with tf.variable_scope('layer1-conv1'):
         conv1_weights = tf.get_variable("weight", [11, 11, 3, 96], initializer=tf.truncated_normal_initializer(stddev=0.1))
         conv1_biases = tf.get_variable("bias", [96], initializer=tf.constant_initializer(0.0))
         conv1 = tf.nn.conv2d(input_tensor, conv1_weights, strides=[1, 4, 4, 1], padding='SAME') 
         relu1 = tf.nn.relu(tf.nn.bias_add(conv1, conv1_biases))
-    pool1 = tf.nn.max_pool(relu1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='VALID', name='pool1')
-    norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001/9.0, beta=0.75, name='norm1')
+    norm1 = tf.nn.lrn(relu1, 5, bias=1.0, alpha=0.0001, beta=0.75, name='norm1')
+    pool1 = tf.nn.max_pool(norm1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='VALID', name='pool1')
     #dropout1 = tf.nn.dropout(norm1, 0.5)
     
 
@@ -27,21 +31,23 @@ def alexnet(input_tensor, train, regularizer):
     with tf.name_scope('conv2') as scope:
         conv2_weights = tf.get_variable("weight", [5, 5, 96, 256], initializer=tf.truncated_normal_initializer(stddev=0.1))
         conv2_biases = tf.get_variable("bias", [256], initializer=tf.constant_initializer(0.0))
-        conv2 = tf.nn.conv2d(norm1, conv2_weights, strides=[1, 1, 1, 1], padding='SAME') 
+        conv2 = tf.nn.conv2d(pool1, conv2_weights, strides=[1, 1, 1, 1], padding='SAME') 
         relu2 = tf.nn.relu(tf.nn.bias_add(conv2, conv2_biases))
-    pool2 = tf.nn.max_pool(relu2, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='VALID', name='pool2')
+    norm2 = tf.nn.lrn(relu2, 5, bias=1.0, alpha=0.0001, beta=0.75, name='norm2')
+    pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='VALID', name='pool2')
+    
     
     # conv3
     with tf.name_scope('conv3') as scope:
-        conv3_weights = tf.get_variable("weight", [3, 3, 256, 384], initializer=tf.truncated_normal_initializer(stddev=0.1))
+        conv3_weights = tf.get_variable("weight", [3, 3, 256, 384], initializer=tf.truncated_normal_initializer(stddev=0.1),)
         conv3_biases = tf.get_variable("bias", [384], initializer=tf.constant_initializer(0.0))
         conv3 = tf.nn.conv2d(pool2, conv3_weights, strides=[1, 1, 1, 1], padding='SAME') 
         relu3 = tf.nn.relu(tf.nn.bias_add(conv3, conv3_biases))
     
      # conv4
     with tf.name_scope('conv4') as scope:
-        conv4_weights = tf.get_variable("weight", [3, 3, 384, 256], initializer=tf.truncated_normal_initializer(stddev=0.1))
-        conv4_biases = tf.get_variable("bias", [256], initializer=tf.constant_initializer(0.0))
+        conv4_weights = tf.get_variable("weight", [3, 3, 384, 384], initializer=tf.truncated_normal_initializer(stddev=0.1))
+        conv4_biases = tf.get_variable("bias", [384], initializer=tf.constant_initializer(0.0))
         conv4 = tf.nn.conv2d(relu3, conv4_weights, strides=[1, 1, 1, 1], padding='SAME') 
         relu4 = tf.nn.relu(tf.nn.bias_add(conv4, conv4_biases))
         
