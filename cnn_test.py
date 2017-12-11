@@ -10,17 +10,15 @@ Created on Mon Nov 13 19:18:42 2017
 
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
-import os
-os.chdir("F:/project/tensorflow_learn")
 import numpy as np
 
 
-def evaluate(model, data):
+def evaluate(model, data, model_name, model_save_path="/model"):
     with tf.Graph().as_default() as g:
-        x = tf.placeholder(tf.float32, [None, INPUT_NODE], name='x-input')
-        y_ = tf.placeholder(tf.float32, [None, OUTPUT_NODE], name='y-input')
-        validate_feed = {x: mnist.validation.images, y_: mnist.validation.labels}  #导入测试数据
-        y = inference(x, None)
+        x = tf.placeholder(tf.float32, [None, model.INPUT_NODE], name='x-input')
+        y_ = tf.placeholder(tf.float32, [None, model.OUTPUT_NODE], name='y-input')
+        validate_feed = {x: data.validation.images, y_: data.validation.labels}  #导入测试数据
+        y = model.inference(x, None)
        
         correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))

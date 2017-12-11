@@ -10,13 +10,13 @@ Created on Mon Nov 13 19:18:42 2017
 
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
-import os
-os.chdir("F:/project/tensorflow_learn")
 import numpy as np
 import cnn_train
 import cnn_test
+import LeNet5
+import AlexNet
 
 if __name__ == '__main__':
     mnist = input_data.read_data_sets("F:/datasets/MNIST_data", one_hot=True)
-    cnn_train.train(model, mnist)
-    cnn_test.evaluate(model,mnist)
+    cnn_train.train(AlexNet, mnist, "AlexNet")
+    #cnn_test.evaluate(LeNet5, mnist, "AlexNet")

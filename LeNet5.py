@@ -4,14 +4,22 @@ Created on Mon Nov 13 19:18:42 2017
 
 @author: HM-PC
 
-数据:训练集为55000张图片；验证集为5000张图片；测试集为10000张图片；每张图片大小为28x28；
+数据:mnist数据集，训练集为55000张图片；验证集为5000张图片；测试集为10000张图片；每张图片大小为28x28；
 每张图片精处理为784的一维数组（28x28）；像素矩阵的值为[0,1]之间，0表示白色背景，1表示黑色前景
+
 """
 
 import tensorflow as tf
 
+INPUT_NODE = 784
+OUTPUT_NODE = 10
 
-def lenet5(input_tensor, train, regularizer):
+IMAGE_SIZE = 28
+NUM_CHANNELS = 1
+NUM_LABELS = 10
+
+
+def inference(input_tensor, train, regularizer):
     #输入为32x32，过滤器边长为5，深度为32，移动步长为1且使用全0填充，输出为28x28x32
     with tf.variable_scope('layer1-conv1'):
         conv1_weights = tf.get_variable("weight", [5, 5, 1, 32], initializer=tf.truncated_normal_initializer(stddev=0.1))
